@@ -1,7 +1,7 @@
 Summary: A file compression and packaging utility compatible with PKZIP.
 Name: zip
 Version: 2.3
-Release: 20
+Release: 22
 License: distributable
 Group: Applications/Archiving
 Source: ftp.uu.net:/pub/archiving/zip/src/zip23.tar.gz
@@ -49,7 +49,8 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(-,root,root)
-%doc README BUGS CHANGES MANUAL TODO WHATSNEW WHERE proginfo/algorith.txt
+%doc README BUGS CHANGES MANUAL TODO WHATSNEW WHERE LICENSE
+%doc proginfo/algorith.txt
 /usr/bin/zipnote
 /usr/bin/zipsplit
 /usr/bin/zip
@@ -57,6 +58,12 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man1/zip.1*
 
 %changelog
+* Fri Mar 19 2004 Lon Hohberger <lhh@redhat.com> 2.3-22
+- Fix typos
+
+* Tue Feb 17 2004 Lon Hohberger <lhh@redhat.com> 2.3-21
+- Include LICENSE file per bugzilla #116004
+
 * Fri Feb 13 2004 Elliot Lee <sopwith@redhat.com>
 - rebuilt
 
