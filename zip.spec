@@ -1,7 +1,7 @@
 Summary: A file compression and packaging utility compatible with PKZIP.
 Name: zip
 Version: 2.3
-Release: 23
+Release: 24
 License: distributable
 Group: Applications/Archiving
 Source: ftp.uu.net:/pub/archiving/zip/src/zip23.tar.gz
@@ -10,6 +10,8 @@ URL: http://www.info-zip.org/pub/infozip/Zip.html
 Patch0: zip23.patch
 Patch1: exec-shield.patch
 Patch2: zip23-umask.patch
+Patch3: zip-2.3-near-4GB.patch
+Patch4: zip-2.3-configure.patch
 BuildRoot: %{_tmppath}/%{name}-%{version}-root
 
 %description
@@ -26,9 +28,11 @@ program.
 %patch0 -p1 -b .zip
 %patch1 -p1 -b .zip
 %patch2 -p1 -b .umask
+%patch3 -p1 -b .4gb
+%patch4 -p1 -b .cfg
 
 %build
-make -f unix/Makefile prefix=/usr "CFLAGS=$RPM_OPT_FLAGS -I. -DUNIX" generic_gcc
+make -f unix/Makefile prefix=/usr "CFLAGS=$RPM_OPT_FLAGS -I. -DUNIX -D_LARGEFILE64_SOURCE" generic_gcc
 
 %install
 rm -rf $RPM_BUILD_ROOT
@@ -58,6 +62,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man1/zip.1*
 
 %changelog
+* Mon Jun 21 2004 Lon Hohberger <lhh@redhat.com> 2.3-24
+- Extend max file/archive size to 2^32-8193 (4294959103) bytes
+- Include better debugging output for configure script
+
 * Tue Jun 15 2004 Elliot Lee <sopwith@redhat.com>
 - rebuilt
 
