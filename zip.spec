@@ -1,7 +1,7 @@
 Summary: A file compression and packaging utility compatible with PKZIP.
 Name: zip
 Version: 2.3
-Release: 29
+Release: 30
 License: distributable
 Group: Applications/Archiving
 Source: ftp.uu.net:/pub/archiving/zip/src/zip23.tar.gz
@@ -64,6 +64,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man1/zip.1*
 
 %changelog
+* Mon Mar  7 2005 Ivana Varekova <varekova@redhat.com> 2.3-30
+- rebuilt
+
 * Mon Jan 17 2005 Ivana Varekova <varekova@redhat.com> 2.3-29
 - Fix bug #142237 - problem with -d and ./files containing archives
 
