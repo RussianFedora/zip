@@ -1,14 +1,14 @@
 Summary: A file compression and packaging utility compatible with PKZIP.
 Name: zip
 Version: 2.3
-Release: 10
+Release: 11
 Copyright: distributable
 Group: Applications/Archiving
 Source: ftp.uu.net:/pub/archiving/zip/src/zip23.tar.gz
 Source1: ftp://ftp.freesoftware.com/pub/infozip/src/zcrypt29.tar.gz
+URL: http://www.info-zip.org/pub/infozip/Zip.html
 Patch0: zip23.patch
-Prefix: /usr
-BuildRoot: /var/tmp/zip-root
+BuildRoot: %{_tmppath}/%{name}-%{version}-root
 
 %description
 The zip program is a compression and file packaging utility.  Zip is
@@ -24,20 +24,20 @@ program.
 %patch0 -p1 -b .zip
 
 %build
-make -f unix/Makefile prefix=%{prefix} "CFLAGS=$RPM_OPT_FLAGS -I. -DUNIX" generic_gcc
+make -f unix/Makefile prefix=/usr "CFLAGS=$RPM_OPT_FLAGS -I. -DUNIX" generic_gcc
 
 %install
 rm -rf $RPM_BUILD_ROOT
-mkdir -p $RPM_BUILD_ROOT%{prefix}/bin
+mkdir -p $RPM_BUILD_ROOT/usr/bin
 mkdir -p $RPM_BULD_ROOT%{_mandir}/man1
 
-make -f unix/Makefile prefix=$RPM_BUILD_ROOT%{prefix} \
+make -f unix/Makefile prefix=$RPM_BUILD_ROOT/usr \
 	MANDIR=$RPM_BUILD_ROOT%{_mandir}/man1 install
 
 pushd $RPM_BUILD_ROOT
 for n in zipnote zipsplit zip zipcloak ; do
-    strip .%{prefix}/bin/$n
-    chmod 755 .%{prefix}/bin/$n
+    strip ./usr/bin/$n
+    chmod 755 ./usr/bin/$n
 done
 popd
 
@@ -47,13 +47,16 @@ rm -rf $RPM_BUILD_ROOT
 %files
 %defattr(-,root,root)
 %doc README BUGS CHANGES MANUAL TODO WHATSNEW WHERE proginfo/algorith.txt
-%{prefix}/bin/zipnote
-%{prefix}/bin/zipsplit
-%{prefix}/bin/zip
-%{prefix}/bin/zipcloak
+/usr/bin/zipnote
+/usr/bin/zipsplit
+/usr/bin/zip
+/usr/bin/zipcloak
 %{_mandir}/man1/zip.1*
 
 %changelog
+* Wed Mar 13 2002 Trond Eivind Glomsrød <teg@redhat.com> 2.3-11
+- Add URL
+
 * Sun Jun 24 2001 Elliot Lee <sopwith@redhat.com>
 - Bump release + rebuild.
 
