@@ -1,13 +1,14 @@
 Summary: A file compression and packaging utility compatible with PKZIP.
 Name: zip
 Version: 2.3
-Release: 16
+Release: 18
 License: distributable
 Group: Applications/Archiving
 Source: ftp.uu.net:/pub/archiving/zip/src/zip23.tar.gz
 Source1: ftp://ftp.freesoftware.com/pub/infozip/src/zcrypt29.tar.gz
 URL: http://www.info-zip.org/pub/infozip/Zip.html
 Patch0: zip23.patch
+Patch1: exec-shield.patch
 BuildRoot: %{_tmppath}/%{name}-%{version}-root
 
 %description
@@ -22,6 +23,7 @@ program.
 %prep
 %setup -q -a 1
 %patch0 -p1 -b .zip
+%patch1 -p1 -b .zip
 
 %build
 make -f unix/Makefile prefix=/usr "CFLAGS=$RPM_OPT_FLAGS -I. -DUNIX" generic_gcc
@@ -53,6 +55,12 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man1/zip.1*
 
 %changelog
+* Fri Oct 24 2003 Lon Hohberger <lhh@redhat.com> 2.3-18
+- Incorporate Arjan's exec-shield patch for i386
+
+* Wed Jun 04 2003 Elliot Lee <sopwith@redhat.com>
+- rebuilt
+
 * Wed Jan 22 2003 Tim Powers <timp@redhat.com>
 - rebuilt
 
