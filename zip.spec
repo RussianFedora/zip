@@ -1,8 +1,8 @@
 Summary: A file compression and packaging utility compatible with PKZIP.
 Name: zip
 Version: 2.3
-Release: 11
-Copyright: distributable
+Release: 12
+License: distributable
 Group: Applications/Archiving
 Source: ftp.uu.net:/pub/archiving/zip/src/zip23.tar.gz
 Source1: ftp://ftp.freesoftware.com/pub/infozip/src/zcrypt29.tar.gz
@@ -36,7 +36,6 @@ make -f unix/Makefile prefix=$RPM_BUILD_ROOT/usr \
 
 pushd $RPM_BUILD_ROOT
 for n in zipnote zipsplit zip zipcloak ; do
-    strip ./usr/bin/$n
     chmod 755 ./usr/bin/$n
 done
 popd
@@ -54,6 +53,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man1/zip.1*
 
 %changelog
+* Tue Apr  2 2002 Trond Eivind Glomsrød <teg@redhat.com>
+- Don't strip explicitly
+
 * Wed Mar 13 2002 Trond Eivind Glomsrød <teg@redhat.com> 2.3-11
 - Add URL
 
