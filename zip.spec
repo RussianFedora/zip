@@ -1,7 +1,7 @@
 Summary: A file compression and packaging utility compatible with PKZIP.
 Name: zip
 Version: 2.3
-Release: 18
+Release: 20
 License: distributable
 Group: Applications/Archiving
 Source: ftp.uu.net:/pub/archiving/zip/src/zip23.tar.gz
@@ -9,6 +9,7 @@ Source1: ftp://ftp.freesoftware.com/pub/infozip/src/zcrypt29.tar.gz
 URL: http://www.info-zip.org/pub/infozip/Zip.html
 Patch0: zip23.patch
 Patch1: exec-shield.patch
+Patch2: zip23-umask.patch
 BuildRoot: %{_tmppath}/%{name}-%{version}-root
 
 %description
@@ -24,6 +25,7 @@ program.
 %setup -q -a 1
 %patch0 -p1 -b .zip
 %patch1 -p1 -b .zip
+%patch2 -p1 -b .umask
 
 %build
 make -f unix/Makefile prefix=/usr "CFLAGS=$RPM_OPT_FLAGS -I. -DUNIX" generic_gcc
@@ -55,6 +57,12 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man1/zip.1*
 
 %changelog
+* Fri Feb 13 2004 Elliot Lee <sopwith@redhat.com>
+- rebuilt
+
+* Mon Dec 22 2003 Lon Hohberger <lhh@redhat.com> 2.3-19
+- Make temp file have umask 0066 mode (#112516)
+
 * Fri Oct 24 2003 Lon Hohberger <lhh@redhat.com> 2.3-18
 - Incorporate Arjan's exec-shield patch for i386
 
