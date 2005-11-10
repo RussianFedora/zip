@@ -1,18 +1,19 @@
 Summary: A file compression and packaging utility compatible with PKZIP.
 Name: zip
-Version: 2.3
-Release: 30
+Version: 2.31
+Release: 1
 License: distributable
 Group: Applications/Archiving
-Source: ftp.uu.net:/pub/archiving/zip/src/zip23.tar.gz
+Source: http://ftp.info-zip.org/pub/infozip/src/zip231.tar.gz
 Source1: ftp://ftp.freesoftware.com/pub/infozip/src/zcrypt29.tar.gz
 URL: http://www.info-zip.org/pub/infozip/Zip.html
 Patch0: zip23.patch
 Patch1: exec-shield.patch
 Patch2: zip23-umask.patch
-Patch3: zip-2.3-near-4GB.patch
-Patch4: zip-2.3-configure.patch
 Patch5: zip-2.3-currdir.patch
+Patch6: zip-2.31-install.patch
+Patch7: zip-2.31-near-4GB.patch
+Patch8: zip-2.31-configure.patch
 BuildRoot: %{_tmppath}/%{name}-%{version}-root
 
 %description
@@ -29,9 +30,10 @@ program.
 %patch0 -p1 -b .zip
 %patch1 -p1 -b .zip
 %patch2 -p1 -b .umask
-%patch3 -p1 -b .4gb
-%patch4 -p1 -b .cfg
 %patch5 -p1 -b .currdir
+%patch6 -p1 -b .install
+%patch7 -p1 -b .4gb
+%patch8 -p1 -b .lhh
 
 %build
 make -f unix/Makefile prefix=/usr "CFLAGS=$RPM_OPT_FLAGS -I. -DUNIX -D_LARGEFILE64_SOURCE" generic_gcc
@@ -64,6 +66,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man1/zip.1*
 
 %changelog
+* Thu Nov 10 2005 Ivana Varekova <varekova@redhat.com> 2.31-1
+- update to 2.31
+
 * Mon Mar  7 2005 Ivana Varekova <varekova@redhat.com> 2.3-30
 - rebuilt
 

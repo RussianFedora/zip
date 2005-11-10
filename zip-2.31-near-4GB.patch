@@ -1,0 +1,293 @@
+--- zip-2.31/unix/zipup.h.4GB	2005-01-29 07:47:58.000000000 +0100
++++ zip-2.31/unix/zipup.h	2005-11-10 13:18:02.990593904 +0100
+@@ -6,13 +6,19 @@
+   If, for some reason, both of these files are missing, the Info-ZIP license
+   also may be found at:  ftp://ftp.info-zip.org/pub/infozip/license.html
+ */
++#include <features.h>
++#include <fcntl.h>
+ #ifndef O_RDONLY
+ #  define O_RDONLY 0
+ #endif
+ #ifndef O_BINARY
+ #  define O_BINARY 0
+ #endif
+-#define fhow (O_RDONLY|O_BINARY)
++#ifdef _LARGEFILE64_SOURCE
++#define fhow (O_RDONLY | O_LARGEFILE)
++#else
++#define fhow O_RDONLY
++#endif
+ #define fbad (-1)
+ typedef int ftype;
+ #define zopen(n,p) open(n,p)
+--- zip-2.31/unix/unix.c.4GB	2005-02-11 03:35:02.000000000 +0100
++++ zip-2.31/unix/unix.c	2005-11-10 13:24:19.573344624 +0100
+@@ -113,7 +113,11 @@
+   char *e;              /* pointer to name from readd() */
+   int m;                /* matched flag */
+   char *p;              /* path for recursion */
++#ifdef _LARGEFILE64_SOURCE
++  struct stat64 s;      /* result of stat() */
++#else
+   struct stat s;        /* result of stat() */
++#endif
+   struct zlist far *z;  /* steps through zfiles list */
+ 
+   if (strcmp(n, "-") == 0)   /* if compressing stdin */
+@@ -202,6 +206,15 @@
+   } /* (s.st_mode & S_IFDIR) */
+   else
+     zipwarn("ignoring special file: ", n);
++
++  /* Zip uses negative error codes (IIRC, to -3).  Make sure file size
++     doesn't collide with error values.  2^32 - 8193 should be plenty until
++     info-zip supports zip64. */
++  if (s.st_size > MAX_ZIP_SIZE) {
++    zipwarn("file too large: ", a);
++    return ZE_MISS;
++  }
++
+   return ZE_OK;
+ }
+ 
+@@ -321,7 +334,12 @@
+    If f is "-", use standard input as the file. If f is a device, return
+    a file size of -1 */
+ {
+-  struct stat s;        /* results of stat() */
++#ifdef _LARGEFILE64_SOURCE
++  struct stat64 s;        /* results of stat() */
++#else
++  struct stat s;
++#endif
++
+   /* converted to pointer from using FNMAX - 11/8/04 EG */
+   char *name;
+   int len = strlen(f);
+@@ -343,7 +361,11 @@
+     name[len - 1] = '\0';
+   /* not all systems allow stat'ing a file with / appended */
+   if (strcmp(f, "-") == 0) {
++#ifdef _LARGEFILE64_SOURCE
++    if (fstat64(fileno(stdin), &s) != 0) {
++#else
+     if (fstat(fileno(stdin), &s) != 0) {
++#endif
+       free(name);
+       error("fstat(stdin)");
+     }
+@@ -422,7 +444,11 @@
+   /* store full data in local header but just modification time stamp info
+      in central header */
+ {
++#ifdef _LARGEFILE64_SOURCE
++  struct stat64 s;
++#else
+   struct stat s;
++#endif
+   char *name;
+   int len = strlen(z->name);
+ 
+--- zip-2.31/unix/configure.4GB	2004-12-05 09:51:18.000000000 +0100
++++ zip-2.31/unix/configure	2005-11-10 13:12:47.010630160 +0100
+@@ -12,7 +12,7 @@
+ trap "rm -f conftest* core a.out; exit 1" 1 2 3 15
+ 
+ CC=${1-cc}
+-CFLAGS=${2-"-O2 -I. -DUNIX"}
++CFLAGS=${2-"-O2 -I. -DUNIX -g -D_LARGEFILE64_SOURCE"}
+ LFLAGS1=""
+ LN="ln -s"
+ 
+--- zip-2.31/fileio.c.4GB	2005-11-10 12:59:43.000000000 +0100
++++ zip-2.31/fileio.c	2005-11-10 13:07:13.190378552 +0100
+@@ -599,7 +599,11 @@
+    this will be done by setfileattr() later.
+  */
+ {
++#ifdef _LARGEFILE64_SOURCE
++  struct stat64 t;        /* results of stat64() */
++#else
+   struct stat t;        /* results of stat() */
++#endif
+ #if defined(CMS_MVS)
+   /* cmsmvs.h defines FOPW_TEMP as memory(hiperspace).  Since memory is
+    * lost at end of run, always do copy instead of rename.
+@@ -698,8 +702,11 @@
+ 
+   return _dos_files(&buf, f, 0xff) < 0 ? 0x20 : buf.atr;
+ #else
++#ifdef _LARGEFILE64_SOURCE
++  struct stat64 s;
++#else  
+   struct stat s;
+-
++#endif
+   return SSTAT(f, &s) == 0 ? (int) s.st_mode : 0;
+ #endif
+ }
+@@ -920,3 +927,108 @@
+ }
+ 
+ #endif /* NO_RENAME */
++
++/*
++   Wrapper functions for fopen/fseek/ftell for >2GB files.
++
++   So, what we do here is add support for 4GB seeks.  More appropriately,
++   2^32 - 8193 bytes.  This is tailored to the way zip uses fseek; it never
++   seeks backwards more than 8192 bytes.
++ */
++#ifdef _LARGEFILE64_SOURCE
++FILE *
++lfopen(const char *path, const char *mode)
++{
++  int fd;
++  FILE *f;
++  int flags;
++  int x;
++  char prev;
++
++  if (!path || !mode | !strlen(mode))
++    return NULL;
++
++  for (x = 0; x < strlen(mode); x++) {
++    switch (mode[x]) {
++    case 'r':
++      flags = O_RDONLY | O_LARGEFILE;
++      break;
++    case 'w':
++      flags = O_WRONLY | O_LARGEFILE | O_CREAT | O_TRUNC;
++      break;
++    case 'a':
++      flags = O_RDWR | O_LARGEFILE;
++      break;
++    case 'b': /* b has no effect */
++      continue;
++    case '+':
++      if (prev == 'r') {
++        flags = O_RDWR | O_LARGEFILE;
++      } else if (prev == 'w') {
++        flags = O_RDWR | O_LARGEFILE | O_CREAT |
++          O_TRUNC;
++      } else if (prev == 'a') {
++        flags = O_RDWR | O_LARGEFILE | O_CREAT;
++      } else
++        return NULL;
++      break;
++    }
++    prev = mode[x];
++  }
++  
++  fd = open(path, flags, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
++  if (fd == -1)
++    return NULL;
++
++  f = fdopen(fd, mode);
++  return f;
++}
++
++int
++lfseek(FILE *f, ulg pos, int whence)
++{
++  struct stat64 sb;
++  ulg o, delta;
++  int ret;
++
++  /* Hurts performance */
++  fflush(f);
++
++  if (pos <= MAX_ZIP_SIZE) {
++    return (lseek64(fileno(f), pos, whence) == (off64_t)-1);
++  }
++
++  delta = ~((off64_t)pos - 1);
++  if (whence == SEEK_CUR) {
++    o = lseek64(fileno(f), 0, SEEK_CUR);
++    if (o < delta)
++      return -1;
++
++    o -= delta;
++    return (lseek64(fileno(f), o, SEEK_SET) == (off64_t)-1);
++  }
++
++  if (whence == SEEK_END) {
++    fstat64(fileno(f), &sb);
++
++    if ((ulg)sb.st_size < delta)
++      return -1;
++
++    o = (off64_t)((sb.st_size) - delta);
++    return (lseek64(fileno(f), o, SEEK_SET) == (off64_t)-1);
++  }
++
++  return -1;
++}
++
++
++ulg
++lftell(FILE *f)
++{
++  /* Hurts performance */
++  fflush(f);
++  return (ulg)lseek64(fileno(f), 0, SEEK_CUR);
++}
++
++#endif /* _LARGEFILE64_SOURCE */
++
+--- zip-2.31/zip.h.4GB	2005-11-10 12:59:43.000000000 +0100
++++ zip-2.31/zip.h	2005-11-10 13:18:57.653283912 +0100
+@@ -236,6 +236,7 @@
+ #define DOSTIME_MINIMUM         ((ulg)0x00210000L)
+ #define DOSTIME_2038_01_18      ((ulg)0x74320000L)
+ 
++#define MAX_ZIP_SIZE 0xffffdffe /* Max archive / archive member size */
+ 
+ /* Public globals */
+ extern uch upper[256];          /* Country dependent case map table */
+@@ -411,6 +412,11 @@
+ int putcentral OF((struct zlist far *, FILE *));
+ int putend OF((int, ulg, ulg, extent, char *, FILE *));
+ int zipcopy OF((struct zlist far *, FILE *, FILE *));
++#ifdef _LARGEFILE64_SOURCE
++int lfseek OF((FILE *, ulg, int));
++ulg lftell OF((FILE *));
++FILE *lfopen OF((const char *, const char *));
++#endif /* LF64 */
+ 
+         /* in fileio.c */
+ #ifndef UTIL
+--- zip-2.31/tailor.h.4GB	2005-03-04 08:45:26.000000000 +0100
++++ zip-2.31/tailor.h	2005-11-10 13:11:18.909023640 +0100
+@@ -368,12 +368,27 @@
+ #   define DYN_ALLOC
+ #endif
+ 
++#ifdef _LARGEFILE64_SOURCE
++#define fopen lfopen
++#define fseek lfseek
++#define ftell lftell
++#endif /* LF64 */
++
+ #ifndef SSTAT
+-#  define SSTAT      stat
++#  ifdef _LARGEFILE64_SOURCE
++#    define SSTAT      stat64
++#  else
++#    define SSTAT      stat
++#  endif /* LF64 */
+ #endif
+ #ifdef S_IFLNK
+-#  define LSTAT      lstat
+-#  define LSSTAT(n, s)  (linkput ? lstat((n), (s)) : SSTAT((n), (s)))
++#  ifdef _LARGEFILE64_SOURCE
++#    define LSTAT      lstat64
++#    define LSSTAT(n, s)  (linkput ? lstat64((n), (s)) : SSTAT((n), (s)))
++#  else
++#    define LSTAT      lstat64
++#    define LSSTAT(n, s)  (linkput ? lstat64((n), (s)) : SSTAT((n), (s)))
++#  endif /* LF64 */
+ #else
+ #  define LSTAT      SSTAT
+ #  define LSSTAT     SSTAT
