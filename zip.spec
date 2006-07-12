@@ -1,7 +1,7 @@
 Summary: A file compression and packaging utility compatible with PKZIP.
 Name: zip
 Version: 2.31
-Release: 1.2.1
+Release: 1.2.2
 License: distributable
 Group: Applications/Archiving
 Source: http://ftp.info-zip.org/pub/infozip/src/zip231.tar.gz
@@ -66,6 +66,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man1/zip.1*
 
 %changelog
+* Wed Jul 12 2006 Jesse Keating <jkeating@redhat.com> - 2.31-1.2.2
+- rebuild
+
 * Fri Feb 10 2006 Jesse Keating <jkeating@redhat.com> - 2.31-1.2.1
 - bump again for double-long bug on ppc(64)
 
