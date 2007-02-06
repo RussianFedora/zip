@@ -66,7 +66,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man1/zip.1*
 
 %changelog
-* Tue Feb  6 2006 Ivana Varekova <varekova@redhat.com> - 2.31-2
+* Tue Feb  6 2007 Ivana Varekova <varekova@redhat.com> - 2.31-2
 - incorporate the package review   
 
 * Wed Jul 12 2006 Jesse Keating <jkeating@redhat.com> - 2.31-1.2.2
