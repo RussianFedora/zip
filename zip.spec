@@ -1,8 +1,8 @@
-Summary: A file compression and packaging utility compatible with PKZIP.
+Summary: A file compression and packaging utility compatible with PKZIP
 Name: zip
 Version: 2.31
-Release: 1.2.2
-License: distributable
+Release: 2%{?dist}
+License: BSD
 Group: Applications/Archiving
 Source: http://ftp.info-zip.org/pub/infozip/src/zip231.tar.gz
 Source1: ftp://ftp.freesoftware.com/pub/infozip/src/zcrypt29.tar.gz
@@ -14,7 +14,7 @@ Patch5: zip-2.3-currdir.patch
 Patch6: zip-2.31-install.patch
 Patch7: zip-2.31-near-4GB.patch
 Patch8: zip-2.31-configure.patch
-BuildRoot: %{_tmppath}/%{name}-%{version}-root
+BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 %description
 The zip program is a compression and file packaging utility.  Zip is
@@ -36,19 +36,19 @@ program.
 %patch8 -p1 -b .lhh
 
 %build
-make -f unix/Makefile prefix=/usr "CFLAGS=$RPM_OPT_FLAGS -I. -DUNIX -D_LARGEFILE64_SOURCE" generic_gcc
+make -f unix/Makefile prefix=%{_prefix} "CFLAGS=$RPM_OPT_FLAGS -I. -DUNIX -D_LARGEFILE64_SOURCE" generic_gcc  %{?_smp_mflags}
 
 %install
 rm -rf $RPM_BUILD_ROOT
-mkdir -p $RPM_BUILD_ROOT/usr/bin
+mkdir -p $RPM_BUILD_ROOT%{_bindir} 
 mkdir -p $RPM_BULD_ROOT%{_mandir}/man1
 
-make -f unix/Makefile prefix=$RPM_BUILD_ROOT/usr \
-	MANDIR=$RPM_BUILD_ROOT%{_mandir}/man1 install
+make -f unix/Makefile prefix=$RPM_BUILD_ROOT%{_prefix} \
+        MANDIR=$RPM_BUILD_ROOT%{_mandir}/man1 install
 
 pushd $RPM_BUILD_ROOT
 for n in zipnote zipsplit zip zipcloak ; do
-    chmod 755 ./usr/bin/$n
+        chmod 755 .%{_bindir}/$n
 done
 popd
 
@@ -59,13 +59,16 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(-,root,root)
 %doc README BUGS CHANGES MANUAL TODO WHATSNEW WHERE LICENSE
 %doc proginfo/algorith.txt
-/usr/bin/zipnote
-/usr/bin/zipsplit
-/usr/bin/zip
-/usr/bin/zipcloak
+%{_bindir}/zipnote
+%{_bindir}/zipsplit
+%{_bindir}/zip
+%{_bindir}/zipcloak
 %{_mandir}/man1/zip.1*
 
 %changelog
+* Tue Feb  6 2006 Ivana Varekova <varekova@redhat.com> - 2.31-2
+- incorporate the package review   
+
 * Wed Jul 12 2006 Jesse Keating <jkeating@redhat.com> - 2.31-1.2.2
 - rebuild
 
@@ -124,10 +127,10 @@ rm -rf $RPM_BUILD_ROOT
 * Thu May 23 2002 Tim Powers <timp@redhat.com>
 - automated rebuild
 
-* Tue Apr  2 2002 Trond Eivind Glomsrød <teg@redhat.com>
+* Tue Apr  2 2002 Trond Eivind GlomsrÃ¸d <teg@redhat.com>
 - Don't strip explicitly
 
-* Wed Mar 13 2002 Trond Eivind Glomsrød <teg@redhat.com> 2.3-11
+* Wed Mar 13 2002 Trond Eivind GlomsrÃ¸d <teg@redhat.com> 2.3-11
 - Add URL
 
 * Sun Jun 24 2001 Elliot Lee <sopwith@redhat.com>
