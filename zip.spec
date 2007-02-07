@@ -1,7 +1,7 @@
 Summary: A file compression and packaging utility compatible with PKZIP
 Name: zip
 Version: 2.31
-Release: 2%{?dist}
+Release: 3%{?dist}
 License: BSD
 Group: Applications/Archiving
 Source: http://ftp.info-zip.org/pub/infozip/src/zip231.tar.gz
@@ -14,6 +14,7 @@ Patch5: zip-2.3-currdir.patch
 Patch6: zip-2.31-install.patch
 Patch7: zip-2.31-near-4GB.patch
 Patch8: zip-2.31-configure.patch
+Patch9: zip-2.31-time.patch
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 %description
@@ -34,6 +35,7 @@ program.
 %patch6 -p1 -b .install
 %patch7 -p1 -b .4gb
 %patch8 -p1 -b .lhh
+%patch9 -p1 -b .time
 
 %build
 make -f unix/Makefile prefix=%{_prefix} "CFLAGS=$RPM_OPT_FLAGS -I. -DUNIX -D_LARGEFILE64_SOURCE" generic_gcc  %{?_smp_mflags}
@@ -66,6 +68,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man1/zip.1*
 
 %changelog
+* Wed Feb  7 2007 Ivana Varekova <varekova@redhat.com> - 2.31-3
+- incorporate the next peckage review comment
+
 * Tue Feb  6 2007 Ivana Varekova <varekova@redhat.com> - 2.31-2
 - incorporate the package review   
 
