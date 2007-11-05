@@ -1,7 +1,7 @@
 Summary: A file compression and packaging utility compatible with PKZIP
 Name: zip
 Version: 2.31
-Release: 3%{?dist}
+Release: 4%{?dist}
 License: BSD
 Group: Applications/Archiving
 Source: http://ftp.info-zip.org/pub/infozip/src/zip231.tar.gz
@@ -15,6 +15,8 @@ Patch6: zip-2.31-install.patch
 Patch7: zip-2.31-near-4GB.patch
 Patch8: zip-2.31-configure.patch
 Patch9: zip-2.31-time.patch
+Patch10: zip-2.3-sf.patch
+Patch11: zip-2.31-umask_mode.patch
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 %description
@@ -36,6 +38,8 @@ program.
 %patch7 -p1 -b .4gb
 %patch8 -p1 -b .lhh
 %patch9 -p1 -b .time
+%patch10 -p1 -b .out
+%patch11 -p1 -b .um
 
 %build
 make -f unix/Makefile prefix=%{_prefix} "CFLAGS=$RPM_OPT_FLAGS -I. -DUNIX -D_LARGEFILE64_SOURCE" generic_gcc  %{?_smp_mflags}
@@ -58,8 +62,8 @@ popd
 rm -rf $RPM_BUILD_ROOT
 
 %files
-%defattr(-,root,root)
-%doc README BUGS CHANGES MANUAL TODO WHATSNEW WHERE LICENSE
+%defattr(-,root,root,-)
+%doc README CHANGES TODO WHATSNEW WHERE LICENSE README.CR
 %doc proginfo/algorith.txt
 %{_bindir}/zipnote
 %{_bindir}/zipsplit
@@ -68,6 +72,11 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man1/zip.1*
 
 %changelog
+* Mon Nov  5 2007 Ivana Varekova <varekova@redhat.com> - 2.31-4
+- fix "zip does not honor umask setting when creating archives"
+- fix "zip segfaults by attempt to archive big file"
+- spec file cleanup
+
 * Wed Feb  7 2007 Ivana Varekova <varekova@redhat.com> - 2.31-3
 - incorporate the next peckage review comment
 

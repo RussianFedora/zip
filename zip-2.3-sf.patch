@@ -1,0 +1,11 @@
+--- zip-2.3/unix/unix.c.pom	2006-10-09 16:24:47.000000000 +0200
++++ zip-2.3/unix/unix.c	2006-10-09 17:14:18.000000000 +0200
+@@ -208,7 +208,7 @@
+      doesn't collide with error values.  2^32 - 8193 should be plenty until
+      info-zip supports zip64. */
+   if (s.st_size > MAX_ZIP_SIZE) {
+-    zipwarn("file too large: ", a);
++    zipwarn("file too large: ", n);
+     return ZE_MISS;
+   }
+ 
