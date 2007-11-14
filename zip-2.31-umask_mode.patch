@@ -6,7 +6,7 @@ diff -up zip-2.31/fileio.c.pom zip-2.31/fileio.c
    }
    
 -  fd = open(path, flags, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
-+  fd = open(path, flags, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH );
++  fd = open(path, flags, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH);
    if (fd == -1)
      return NULL;
  

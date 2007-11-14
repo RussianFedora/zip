@@ -1,7 +1,7 @@
 Summary: A file compression and packaging utility compatible with PKZIP
 Name: zip
 Version: 2.31
-Release: 4%{?dist}
+Release: 5%{?dist}
 License: BSD
 Group: Applications/Archiving
 Source: http://ftp.info-zip.org/pub/infozip/src/zip231.tar.gz
@@ -72,6 +72,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man1/zip.1*
 
 %changelog
+* Wed Nov 14 2007 Ivana Varekova <varekova@redhat.com> - 2.31-5
+- add S_IWOTH option
+
 * Mon Nov  5 2007 Ivana Varekova <varekova@redhat.com> - 2.31-4
 - fix "zip does not honor umask setting when creating archives"
 - fix "zip segfaults by attempt to archive big file"
