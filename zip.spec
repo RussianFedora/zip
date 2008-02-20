@@ -1,7 +1,7 @@
 Summary: A file compression and packaging utility compatible with PKZIP
 Name: zip
 Version: 2.31
-Release: 5%{?dist}
+Release: 6%{?dist}
 License: BSD
 Group: Applications/Archiving
 Source: http://ftp.info-zip.org/pub/infozip/src/zip231.tar.gz
@@ -72,6 +72,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man1/zip.1*
 
 %changelog
+* Wed Feb 20 2008 Fedora Release Engineering <rel-eng@fedoraproject.org> - 2.31-6
+- Autorebuild for GCC 4.3
+
 * Wed Nov 14 2007 Ivana Varekova <varekova@redhat.com> - 2.31-5
 - add S_IWOTH option
 
