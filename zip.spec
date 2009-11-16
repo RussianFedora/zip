@@ -1,22 +1,18 @@
 Summary: A file compression and packaging utility compatible with PKZIP
 Name: zip
-Version: 2.31
-Release: 8%{?dist}
+Version: 3.0
+Release: 1%{?dist}
 License: BSD
 Group: Applications/Archiving
-Source: http://ftp.info-zip.org/pub/infozip/src/zip231.tar.gz
-Source1: ftp://ftp.freesoftware.com/pub/infozip/src/zcrypt29.tar.gz
-URL: http://www.info-zip.org/pub/infozip/Zip.html
-Patch0: zip23.patch
-Patch1: exec-shield.patch
-Patch2: zip23-umask.patch
-Patch5: zip-2.3-currdir.patch
-Patch6: zip-2.31-install.patch
-Patch7: zip-2.31-near-4GB.patch
-Patch8: zip-2.31-configure.patch
-Patch9: zip-2.31-time.patch
-Patch10: zip-2.3-sf.patch
-Patch11: zip-2.31-umask_mode.patch
+Source: http://downloads.sourceforge.net/infozip/zip30.tar.gz
+URL: http://www.info-zip.org/Zip.html
+# This patch will probably be merged to zip 3.1
+# http://www.info-zip.org/board/board.pl?m-1249408491/
+Patch1: zip-3.0-exec-shield.patch
+# Not upstreamed.
+Patch2: zip-3.0-currdir.patch
+# Not upstreamed.
+Patch3: zip-3.0-time.patch
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 %description
@@ -29,20 +25,13 @@ Install the zip package if you need to compress files using the zip
 program.
 
 %prep
-%setup -q -a 1
-%patch0 -p1 -b .zip
-%patch1 -p1 -b .zip
-%patch2 -p1 -b .umask
-%patch5 -p1 -b .currdir
-%patch6 -p1 -b .install
-%patch7 -p1 -b .4gb
-%patch8 -p1 -b .lhh
-%patch9 -p1 -b .time
-%patch10 -p1 -b .out
-%patch11 -p1 -b .um
+%setup -q -n zip30
+%patch1 -p1 -b .exec-shield
+%patch2 -p1 -b .currdir
+%patch3 -p1 -b .time
 
 %build
-make -f unix/Makefile prefix=%{_prefix} "CFLAGS=$RPM_OPT_FLAGS -I. -DUNIX -D_LARGEFILE64_SOURCE" generic_gcc  %{?_smp_mflags}
+make -f unix/Makefile prefix=%{_prefix} "CFLAGS_NOOPT=-I. -DUNIX $RPM_OPT_FLAGS" generic_gcc  %{?_smp_mflags}
 
 %install
 rm -rf $RPM_BUILD_ROOT
@@ -51,12 +40,6 @@ mkdir -p $RPM_BULD_ROOT%{_mandir}/man1
 
 make -f unix/Makefile prefix=$RPM_BUILD_ROOT%{_prefix} \
         MANDIR=$RPM_BUILD_ROOT%{_mandir}/man1 install
-
-pushd $RPM_BUILD_ROOT
-for n in zipnote zipsplit zip zipcloak ; do
-        chmod 755 .%{_bindir}/$n
-done
-popd
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -70,8 +53,25 @@ rm -rf $RPM_BUILD_ROOT
 %{_bindir}/zip
 %{_bindir}/zipcloak
 %{_mandir}/man1/zip.1*
+%{_mandir}/man1/zipcloak.1*
+%{_mandir}/man1/zipnote.1*
+%{_mandir}/man1/zipsplit.1*
 
 %changelog
+* Fri Nov 13 2009 Karel Klic <kklic@redhat.com> - 3.0-1
+- New upstream version
+- Removed zip23.patch, because ZMEM is not used anyway
+- Removed zip-2.31-install.patch, problem solved in upstream
+- Removed zip23-umask.patch, upstream uses mkstemp which solves the problem
+- Removed zip-2.31-near-4GB.patch, because upstream version 
+  handles large files well
+- Removed zip-2.31-configure.patch, configure is better in the current version
+- Removed zip-2.3-sf.patch, the error message doesn't exist in upstream anymore
+- Removed zip-2.31-umask_mode.patch, which fixes also removed near-4GB patch
+- Updated zip-2.31-time.patch for zip 3.0
+- Updated exec-shield.patch for zip 3.0
+- Updated zip-2.3-currdir.patch for zip 3.0
+
 * Mon Jul 27 2009 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2.31-8
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_12_Mass_Rebuild
 
