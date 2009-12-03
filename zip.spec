@@ -1,14 +1,13 @@
 Summary: A file compression and packaging utility compatible with PKZIP
 Name: zip
 Version: 2.31
-Release: 8%{?dist}
+Release: 9%{?dist}
 License: BSD
 Group: Applications/Archiving
 Source: http://ftp.info-zip.org/pub/infozip/src/zip231.tar.gz
-Source1: ftp://ftp.freesoftware.com/pub/infozip/src/zcrypt29.tar.gz
 URL: http://www.info-zip.org/pub/infozip/Zip.html
 Patch0: zip23.patch
-Patch1: exec-shield.patch
+Patch1: zip-2.31-exec-shield.patch
 Patch2: zip23-umask.patch
 Patch5: zip-2.3-currdir.patch
 Patch6: zip-2.31-install.patch
@@ -29,9 +28,9 @@ Install the zip package if you need to compress files using the zip
 program.
 
 %prep
-%setup -q -a 1
+%setup -q
 %patch0 -p1 -b .zip
-%patch1 -p1 -b .zip
+%patch1 -p1 -b .exec-shield
 %patch2 -p1 -b .umask
 %patch5 -p1 -b .currdir
 %patch6 -p1 -b .install
@@ -72,6 +71,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man1/zip.1*
 
 %changelog
+* Thu Dec  3 2009 Karel Klic <kklic@redhat.com> - 2.31-9
+- Renamed exec-shield.patch to zip-2.31-exec-shield.patch
+- Removed zcrypt29.tar.gz as it is no longer necessary
+
 * Mon Jul 27 2009 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2.31-8
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_12_Mass_Rebuild
 
