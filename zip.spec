@@ -1,7 +1,7 @@
 Summary: A file compression and packaging utility compatible with PKZIP
 Name: zip
 Version: 3.0
-Release: 1%{?dist}
+Release: 2%{?dist}
 License: BSD
 Group: Applications/Archiving
 Source: http://downloads.sourceforge.net/infozip/zip30.tar.gz
@@ -13,7 +13,6 @@ Patch1: zip-3.0-exec-shield.patch
 Patch2: zip-3.0-currdir.patch
 # Not upstreamed.
 Patch3: zip-3.0-time.patch
-BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 %description
 The zip program is a compression and file packaging utility.  Zip is
@@ -35,14 +34,11 @@ make -f unix/Makefile prefix=%{_prefix} "CFLAGS_NOOPT=-I. -DUNIX $RPM_OPT_FLAGS"
 
 %install
 rm -rf $RPM_BUILD_ROOT
-mkdir -p $RPM_BUILD_ROOT%{_bindir} 
+mkdir -p $RPM_BUILD_ROOT%{_bindir}
 mkdir -p $RPM_BULD_ROOT%{_mandir}/man1
 
 make -f unix/Makefile prefix=$RPM_BUILD_ROOT%{_prefix} \
         MANDIR=$RPM_BUILD_ROOT%{_mandir}/man1 install
-
-%clean
-rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(-,root,root,-)
@@ -58,12 +54,17 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man1/zipsplit.1*
 
 %changelog
+* Mon May 24 2010 Karel Klic <kklic@redhat.com> - 3.0-2
+- Removed BuildRoot tag
+- Removed %%clean section
+- Removed trailing whitespaces in the spec file
+
 * Fri Nov 13 2009 Karel Klic <kklic@redhat.com> - 3.0-1
 - New upstream version
 - Removed zip23.patch, because ZMEM is not used anyway
 - Removed zip-2.31-install.patch, problem solved in upstream
 - Removed zip23-umask.patch, upstream uses mkstemp which solves the problem
-- Removed zip-2.31-near-4GB.patch, because upstream version 
+- Removed zip-2.31-near-4GB.patch, because upstream version
   handles large files well
 - Removed zip-2.31-configure.patch, configure is better in the current version
 - Removed zip-2.3-sf.patch, the error message doesn't exist in upstream anymore
@@ -93,7 +94,7 @@ rm -rf $RPM_BUILD_ROOT
 - incorporate the next peckage review comment
 
 * Tue Feb  6 2007 Ivana Varekova <varekova@redhat.com> - 2.31-2
-- incorporate the package review   
+- incorporate the package review
 
 * Wed Jul 12 2006 Jesse Keating <jkeating@redhat.com> - 2.31-1.2.2
 - rebuild
