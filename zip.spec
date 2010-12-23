@@ -1,7 +1,7 @@
 Summary: A file compression and packaging utility compatible with PKZIP
 Name: zip
 Version: 3.0
-Release: 2%{?dist}
+Release: 2%{?dist}.1
 License: BSD
 Group: Applications/Archiving
 Source: http://downloads.sourceforge.net/infozip/zip30.tar.gz
@@ -13,6 +13,11 @@ Patch1: zip-3.0-exec-shield.patch
 Patch2: zip-3.0-currdir.patch
 # Not upstreamed.
 Patch3: zip-3.0-time.patch
+
+# libnatspec patch
+Patch99: zip30-natspec-asdos-mod.diff
+
+BuildRequires:	libnatspec-devel
 
 %description
 The zip program is a compression and file packaging utility.  Zip is
@@ -28,6 +33,7 @@ program.
 %patch1 -p1 -b .exec-shield
 %patch2 -p1 -b .currdir
 %patch3 -p1 -b .time
+%patch99 -p1
 
 %build
 make -f unix/Makefile prefix=%{_prefix} "CFLAGS_NOOPT=-I. -DUNIX $RPM_OPT_FLAGS" generic_gcc  %{?_smp_mflags}
@@ -54,6 +60,9 @@ make -f unix/Makefile prefix=$RPM_BUILD_ROOT%{_prefix} \
 %{_mandir}/man1/zipsplit.1*
 
 %changelog
+* Fri Dec 10 2010 Arkady L. Shane <ashejn@yandex-team.ru> - 3.0-2.1
+- build with libnatspec support for automatic encoding
+
 * Mon May 24 2010 Karel Klic <kklic@redhat.com> - 3.0-2
 - Removed BuildRoot tag
 - Removed %%clean section
