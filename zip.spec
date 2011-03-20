@@ -1,7 +1,7 @@
 Summary: A file compression and packaging utility compatible with PKZIP
 Name: zip
 Version: 3.0
-Release: 2%{?dist}.1
+Release: 3%{?dist}.1
 License: BSD
 Group: Applications/Archiving
 Source: http://downloads.sourceforge.net/infozip/zip30.tar.gz
@@ -60,6 +60,9 @@ make -f unix/Makefile prefix=$RPM_BUILD_ROOT%{_prefix} \
 %{_mandir}/man1/zipsplit.1*
 
 %changelog
+* Sun Mar 20 2011 Arkady L. Shane <ashejn@yandex-team.ru> - 3.0-3.1
+- rebuilt for Fedora 15
+
 * Fri Dec 10 2010 Arkady L. Shane <ashejn@yandex-team.ru> - 3.0-2.1
 - build with libnatspec support for automatic encoding
 
